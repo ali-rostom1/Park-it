@@ -14,11 +14,11 @@ class AuthController extends Controller
     public function register(RegisterRequest $request)
     {
         try{
-            User::create($request->validated());
-
-        return response()->json([
-            'message' => 'User registered successfully'
-        ],201);
+            $user = User::create($request->validated());
+            $user->assignRole('user');
+            return response()->json([
+                'message' => 'User registered successfully'
+            ],201);
         }catch(\Exception $e){
             return response()->json([
                 'message' => 'Failed to register User',
