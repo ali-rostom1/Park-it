@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ReservationRequest;
 use App\Models\Reservation;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Http\Request;
 
 class ReservationController extends Controller
@@ -35,12 +36,26 @@ class ReservationController extends Controller
     public function store(ReservationRequest $request)
     {
         try{
-            $reservation = Reservation::create($request->validated());
+            $request->validated();
+            $reservation = Reservation::where('spot_id',$request->spot_id)
+            ->where('start_date', '<=', $request->end_date)
+            ->where('end_date', '>=', $request->start_date)
+            ->exists();
+            if(!$reservation){
+                $reservation = Reservation::create($request->all());
+                $reservation->spot()->update(["is_available" => false]);
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Stored reservation successfully',
+                    'data' => $reservation,
+                ]);
+            }
             return response()->json([
-                'status' => true,
-                'message' => 'Stored reservation successfully',
+                'status' => false,
+                'message' => 'Reservation dates full',  
                 'data' => $reservation,
-            ]);
+            ]); 
+            
         }catch(\Exception $e){
             return response()->json([
                 'status' => false,

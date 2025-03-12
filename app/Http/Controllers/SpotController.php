@@ -37,7 +37,7 @@ class SpotController extends Controller
     public function store(SpotRequest $request)
     {
         try{
-            $spot = Spot::created($request->validated());
+            $spot = Spot::create($request->validated());
             return response()->json([
                 'status' => true,
                 'message' => 'Saved spot successfully',

@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ParkingController;
+use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\SpotController;
+use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +22,9 @@ Route::apiResource('parkings',ParkingController::class)->except("index",'show')-
 
 Route::apiResource('spots',SpotController::class)->only("index",'show')->middleware('auth:sanctum');
 Route::apiResource('spots',SpotController::class)->except("index",'show')->middleware(['auth:sanctum','role:admin']);
+
+Route::apiResource('reservations',ReservationController::class)->only("index",'show')->middleware('auth:sanctum');
+Route::apiResource('reservations',ReservationController::class)->except("index",'show')->middleware(['auth:sanctum','role:admin']);
 
 Route::get('test',function(){
     return response()->json('hello');

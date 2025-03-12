@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ReservationRequest extends FormRequest
@@ -12,6 +13,16 @@ class ReservationRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+
+
+    public function prepareForValidation()
+    {
+        return $this->merge([
+            'start_date' => Carbon::parse($this->get('start_date')),
+            'end_date' => Carbon::parse($this->get('end_date')),
+        ]);
     }
 
     /**
