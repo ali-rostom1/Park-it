@@ -6,6 +6,7 @@ use App\Http\Requests\ReservationRequest;
 use App\Models\Reservation;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ReservationController extends Controller
 {
@@ -128,5 +129,55 @@ class ReservationController extends Controller
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+    public function cancelMyReservation(string $id)
+    {
+        try{
+            $reservation = Reservation::with('user')->find($id);
+            if(!$reservation) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Reservation Not found',
+                    'data' => (int)$id
+                ]);
+            }
+            if($reservation->user->id == Auth::user()->id){
+                $reservation->destroy();
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Successfully cancelled reservation',
+                    'data' => $reservation,
+                ]);
+            }
+            return response()->json([
+                'status' => false,
+                'message' => 'Not Authorized to cancel said reservation',
+            ]);
+        }catch(\Exception $e){
+            return response()->json([
+                'status' => false,
+                'message' => 'Error Canceling reservation',
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+    public function myReservations()
+    {
+        try{
+            $reservations = Auth::user()->reservations;
+            return response()->json([
+                'status' => true,
+                'message' => 'Successfully retrieved your personal reservations',
+                'data' => $reservations,
+            ]);
+        }catch(\Exception $e){
+            return response()->json([
+                'status' => false,
+                'message' => 'Error retrieving your personal reservations',
+                'error' => $e->getMessage(),
+            ]);
+        }
+        
+
     }
 }

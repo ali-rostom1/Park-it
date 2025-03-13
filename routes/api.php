@@ -23,8 +23,16 @@ Route::apiResource('parkings',ParkingController::class)->except("index",'show')-
 Route::apiResource('spots',SpotController::class)->only("index",'show')->middleware('auth:sanctum');
 Route::apiResource('spots',SpotController::class)->except("index",'show')->middleware(['auth:sanctum','role:admin']);
 
-Route::apiResource('reservations',ReservationController::class)->only("index",'show')->middleware('auth:sanctum');
-Route::apiResource('reservations',ReservationController::class)->except("index",'show')->middleware(['auth:sanctum','role:admin']);
+
+Route::apiResource('reservations',ReservationController::class)->middleware(['auth:sanctum','role:admin']);
+
+Route::get('search-spots/{term}',[ParkingController::class,'searchSpots'])->middleware('auth:sanctum');
+
+Route::get('cancel-reservation/{reservation}',[ReservationController::class,'cancelMyReservation'])->middleware('auth:sanctum');
+
+Route::get('my-reservations',[ReservationController::class,'myReservations'])->middleware('auth:sanctum');
+
+
 
 Route::get('test',function(){
     return response()->json('hello');

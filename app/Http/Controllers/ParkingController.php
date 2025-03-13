@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ParkingRequest;
 use App\Models\Parking;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+
+use function Pest\Laravel\json;
 
 class ParkingController extends Controller
 {
@@ -103,5 +106,30 @@ class ParkingController extends Controller
             ]);
         }
         
+    }
+    public function searchSpots($term)
+    {
+        $term = urldecode($term);
+        $parkings = Parking::with('spots.reservations')->whereLike('location',"%$term%")->get();
+        $filteredParkings = [];
+        foreach($parkings as $parking)
+        {
+            $filteredSpots = $parking->spots->filter(function ($spot) {
+                return $spot->reservations->isEmpty();
+            });
+            
+            if ($filteredSpots->isNotEmpty()){
+                $filteredParkings[] = [
+                    'parking_name' => $parking->name,
+                    'parking_spots_count' => count($parking->spots),
+                    'available_spots' => $filteredSpots
+                ];
+            }
+        }
+        return response()->json([
+            'status' => true,
+            'message' => 'Successfully retrieved Spots available',
+            'data' => $filteredParkings,
+        ]);
     }
 }

@@ -115,4 +115,5 @@ class SpotController extends Controller
             ]);
         }
     }
+
 }
